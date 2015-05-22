@@ -22,5 +22,5 @@ for i in /app/share/icons/hicolor/*/apps/firefox.png; do
     mv $i `echo $i | sed s/firefox.png/org.fedoraproject.firefox.png/`;
 done
 
-xdg-app build-finish --command=firefox --allow=x11 --allow=host-fs --allow=ipc --allow=pulseaudio --allow=network firefox
+xdg-app build-finish --command=firefox --socket=x11 --filesystem=host --share=ipc --socket=pulseaudio --share=network firefox
 xdg-app build-export repo firefox
