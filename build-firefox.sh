@@ -1,6 +1,8 @@
 #!/bin/sh
 
-if [ ! -d repo ]
+set -x
+
+if [ ! -d repo ]; then
    ostree init --repo=repo --mode=archive-z2
 fi
 
@@ -9,18 +11,18 @@ xdg-app build-init -v org.fedoraproject.Sdk.Var firefox org.fedoraproject.firefo
 
 rm -rf rpms
 mkdir rpms
-(cd rpms; xdg-app build --allow=network firefox dnf download --resolve firefox)
-xdg-app build --allow=network firefox ./extract-rpms.sh rpms/*.rpm
+(cd rpms; xdg-app build --share=network ../firefox dnf download --resolve firefox)
+xdg-app build firefox ./extract-rpms.sh rpms/*.rpm
 
 # Change /usr in the wrapper shell script
-sed -i s#/usr#/app#g /app/bin/firefox
+sed -i s#/usr#/app#g firefox/files/bin/firefox
 
 # Rename desktop file and icon to have app-id prefix
-mv /app/share/applications/firefox.desktop /app/share/applications/org.fedoraproject.firefox.desktop
-sed -i s#Icon=firefox#Icon=org.fedoraproject.firefox#g /app/share/applications/org.fedoraproject.firefox.desktop
-for i in /app/share/icons/hicolor/*/apps/firefox.png; do
+mv firefox/files/share/applications/firefox.desktop firefox/files//share/applications/org.fedoraproject.firefox.desktop
+sed -i s#Icon=firefox#Icon=org.fedoraproject.firefox#g firefox/files/share/applications/org.fedoraproject.firefox.desktop
+for i in firefox/files/share/icons/hicolor/*/apps/firefox.png; do
     mv $i `echo $i | sed s/firefox.png/org.fedoraproject.firefox.png/`;
 done
 
-xdg-app build-finish --command=firefox --socket=x11 --filesystem=host --share=ipc --socket=pulseaudio --share=network firefox
+xdg-app build-finish --command=firefox --socket=x11 --filesystem=xdg-download --persist=.mozilla --share=ipc --socket=pulseaudio --share=network firefox
 xdg-app build-export repo firefox
